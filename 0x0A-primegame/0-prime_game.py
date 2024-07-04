@@ -8,38 +8,23 @@ def isWinner(x, nums):
     """
         Function
     """
-    # Find the maximum number to determine
-    #  the range for prime number computation
-    max_n = max(nums)
-
-    # Sieve of Eratosthenes to find all primes up to max_n
-    sieve = [True] * (max_n + 1)
-    sieve[0] = sieve[1] = False  # 0 and 1 are not prime
-    for start in range(2, int(max_n**0.5) + 1):
-        if sieve[start]:
-            for multiple in range(start*start, max_n + 1, start):
-                sieve[multiple] = False
-
-    # List of primes up to max_n
-    primes = [i for i, is_prime in enumerate(sieve) if is_prime]
-
-    # Counting wins
-    maria_wins = ben_wins = 0
-
-    # Determine the winner for each
-    # game based on the number of primes up to each n
-    for n in nums:
-        prime_count = sum(1 for p in primes if p <= n)
-
-        if prime_count % 2 == 1:  # Maria wins if the count is odd
-            maria_wins += 1
-        else:  # Ben wins if the count is even
-            ben_wins += 1
-
-    # Determine the overall winner
-    if maria_wins > ben_wins:
-        return "Maria"
-    elif ben_wins > maria_wins:
-        return "Ben"
-    else:
+    if x < 1 or not nums:
         return None
+    marias_wins, bens_wins = 0, 0
+    # generate primes with a limit of the maximum number in nums
+    n = max(nums)
+    primes = [True for _ in range(1, n + 1, 1)]
+    primes[0] = False
+    for i, is_prime in enumerate(primes, 1):
+        if i == 1 or not is_prime:
+            continue
+        for j in range(i + i, n + 1, i):
+            primes[j - 1] = False
+    # filter the number of primes less than n in nums for each round
+    for _, n in zip(range(x), nums):
+        primes_count = len(list(filter(lambda x: x, primes[0: n])))
+        bens_wins += primes_count % 2 == 0
+        marias_wins += primes_count % 2 == 1
+    if marias_wins == bens_wins:
+        return None
+    return 'Maria' if marias_wins > bens_wins else 'Ben'
